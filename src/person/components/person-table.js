@@ -20,8 +20,8 @@ const columns = (handleEdit, handleDelete) => [
         Header: 'Actions',
         Cell: ({ row }) => (
             <div>
-                <button className="edit-button" onClick={() => handleEdit(row.original.id)}>Edit</button>
-                <button className="delete-button" onClick={() => handleDelete(row.original.id)}>Delete</button>
+                <button className="edit-button" onClick={() => handleEdit(row._original.id)}>Edit</button>
+                <button className="delete-button" onClick={() => handleDelete(row._original.id)}>Delete</button>
             </div>
         )
     }
@@ -32,14 +32,9 @@ const filters = [
         accessor: 'name',
     }
 ];
-
 class PersonTable extends React.Component {
-
     constructor(props) {
         super(props);
-        this.state = {
-            tableData: this.props.tableData
-        };
         this.handleDelete = this.handleDelete.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
     }
@@ -47,29 +42,29 @@ class PersonTable extends React.Component {
     handleDelete(personId) {
         API_USERS.deletePerson(personId, (result, status, err) => {
             if (status === 200) {
-                this.setState({
-                    tableData: this.state.tableData.filter(person => person.id !== personId)
-                });
+                // Notify the parent to reload the table data after a successful deletion
+                window.location.reload();
+                this.props.reload();  // Trigger the reload in the parent
             } else {
                 console.error("Failed to delete person:", err);
             }
         });
     }
-
+    
     handleEdit(personId) {
-        // Implement the edit functionality here
-        console.log("Edit person with id:", personId);
+        const selectedPerson = this.props.tableData.find(person => person.id === personId);
+        this.props.onEdit(selectedPerson);
     }
 
     render() {
         return (
             <Table
-                data={this.state.tableData}
+                data={this.props.tableData}
                 columns={columns(this.handleEdit, this.handleDelete)}
                 search={filters}
                 pageSize={5}
             />
-        )
+        );
     }
 }
 

@@ -3,8 +3,7 @@ import validate from "./validators/person-validators";
 import Button from "react-bootstrap/Button";
 import * as API_USERS from "../api/person-api";
 import APIResponseErrorMessage from "../../commons/errorhandling/api-response-error-message";
-import {Col, Row} from "reactstrap";
-import { FormGroup, Input, Label} from 'reactstrap';
+import {Col, Row, FormGroup, Input, Label} from "reactstrap";
 
 class PersonForm extends React.Component {
 
@@ -71,8 +70,24 @@ class PersonForm extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    componentDidMount() {
+        if (this.props.person) {
+            const { name, role, username, password } = this.props.person;
+            this.setState({
+                formControls: {
+                    ...this.state.formControls,
+                    name: { ...this.state.formControls.name, value: name, valid: true },
+                    role: { ...this.state.formControls.role, value: role, valid: true },
+                    username: { ...this.state.formControls.username, value: username, valid: true },
+                    password: { ...this.state.formControls.password, value: password, valid: true }
+                },
+                formIsValid: true
+            });
+        }
+    }
+
     toggleForm() {
-        this.setState({collapseForm: !this.state.collapseForm});
+        this.setState({ collapseForm: !this.state.collapseForm });
     }
 
     handleChange = event => {
@@ -101,7 +116,23 @@ class PersonForm extends React.Component {
     registerPerson(person) {
         return API_USERS.postPerson(person, (result, status, error) => {
             if (result !== null && (status === 200 || status === 201)) {
-                console.log("Successfully inserted person with id: " + result);
+                this.reloadHandler();
+            } else {
+                let errorMessage = "An unexpected error occurred on the server side!";
+                if (error && error.message) {
+                    errorMessage = error.message;
+                }
+                this.setState({
+                    errorStatus: status,
+                    error: errorMessage
+                });
+            }
+        });
+    }
+
+    updatePerson(person) {
+        return API_USERS.updatePerson(this.props.person.id, person, (result, status, error) => {
+            if (result !== null && (status === 200 || status === 201)) {
                 this.reloadHandler();
             } else {
                 let errorMessage = "An unexpected error occurred on the server side!";
@@ -117,15 +148,18 @@ class PersonForm extends React.Component {
     }
 
     handleSubmit() {
-        let person = {
+        const person = {
             name: this.state.formControls.name.value,
             role: this.state.formControls.role.value,
             username: this.state.formControls.username.value,
             password: this.state.formControls.password.value
         };
 
-        console.log(person);
-        this.registerPerson(person);
+        if (this.props.person) {
+            this.updatePerson(person);
+        } else {
+            this.registerPerson(person);
+        }
     }
 
     render() {
@@ -135,7 +169,7 @@ class PersonForm extends React.Component {
                     <Label for='nameField'> Name: </Label>
                     <Input name='name' id='nameField' placeholder={this.state.formControls.name.placeholder}
                            onChange={this.handleChange}
-                           defaultValue={this.state.formControls.name.value}
+                           value={this.state.formControls.name.value} // Use value instead of defaultValue
                            touched={this.state.formControls.name.touched ? 1 : 0}
                            valid={this.state.formControls.name.valid}
                            required
@@ -143,11 +177,11 @@ class PersonForm extends React.Component {
                     {this.state.formControls.name.touched && !this.state.formControls.name.valid &&
                         <div className={"error-message row"}> * Name must have at least 3 characters </div>}
                 </FormGroup>
-
+    
                 <FormGroup id='role'>
                     <Label for='roleField'> Role: </Label>
                     <Input type="select" name='role' id='roleField' onChange={this.handleChange}
-                           defaultValue={this.state.formControls.role.value}
+                           value={this.state.formControls.role.value} // Use value instead of defaultValue
                            touched={this.state.formControls.role.touched ? 1 : 0}
                            valid={this.state.formControls.role.valid}
                            required>
@@ -161,23 +195,23 @@ class PersonForm extends React.Component {
                     {this.state.formControls.role.touched && !this.state.formControls.role.valid &&
                         <div className={"error-message"}> * Role is required</div>}
                 </FormGroup>
-
+    
                 <FormGroup id='username'>
                     <Label for='usernameField'> Username: </Label>
                     <Input name='username' id='usernameField' placeholder={this.state.formControls.username.placeholder}
                            onChange={this.handleChange}
-                           defaultValue={this.state.formControls.username.value}
+                           value={this.state.formControls.username.value} // Use value instead of defaultValue
                            touched={this.state.formControls.username.touched ? 1 : 0}
                            valid={this.state.formControls.username.valid}
                            required
                     />
                 </FormGroup>
-
+    
                 <FormGroup id='password'>
                     <Label for='passwordField'> Password: </Label>
                     <Input type="password" name='password' id='passwordField' placeholder={this.state.formControls.password.placeholder}
                            onChange={this.handleChange}
-                           defaultValue={this.state.formControls.password.value}
+                           value={this.state.formControls.password.value} // Use value instead of defaultValue
                            touched={this.state.formControls.password.touched ? 1 : 0}
                            valid={this.state.formControls.password.valid}
                            required
@@ -185,18 +219,19 @@ class PersonForm extends React.Component {
                     {this.state.formControls.password.touched && !this.state.formControls.password.valid &&
                         <div className={"error-message"}> * Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number </div>}
                 </FormGroup>
-
+    
                 <Row>
-                    <Col sm={{size: '4', offset: 8}}>
+                    <Col sm={{size: '4', offset: 5}}>
                         <Button type={"submit"} disabled={!this.state.formIsValid} onClick={this.handleSubmit}>Submit</Button>
                     </Col>
                 </Row>
-
+    
                 {this.state.errorStatus > 0 &&
                     <APIResponseErrorMessage errorStatus={this.state.errorStatus} error={this.state.error}/>}
             </div>
         );
     }
+    
 }
 
 export default PersonForm;

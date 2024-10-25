@@ -11,11 +11,8 @@ import {
     Row
 } from 'reactstrap';
 import PersonForm from "./components/person-form";
-
-import * as API_USERS from "./api/person-api"
+import * as API_USERS from "./api/person-api";
 import PersonTable from "./components/person-table";
-
-
 
 class PersonContainer extends React.Component {
 
@@ -23,13 +20,15 @@ class PersonContainer extends React.Component {
         super(props);
         this.toggleForm = this.toggleForm.bind(this);
         this.reload = this.reload.bind(this);
+        this.onEdit = this.onEdit.bind(this);
         this.state = {
             selected: false,
             collapseForm: false,
             tableData: [],
             isLoaded: false,
             errorStatus: 0,
-            error: null
+            error: null,
+            personToEdit: null
         };
     }
 
@@ -39,25 +38,26 @@ class PersonContainer extends React.Component {
 
     fetchPersons() {
         return API_USERS.getPersons((result, status, err) => {
-
             if (result !== null && status === 200) {
                 this.setState({
                     tableData: result,
                     isLoaded: true
                 });
             } else {
-                this.setState(({
+                this.setState({
                     errorStatus: status,
                     error: err
-                }));
+                });
             }
         });
     }
 
     toggleForm() {
-        this.setState({selected: !this.state.selected});
+        this.setState({
+            selected: !this.state.selected,
+            personToEdit: null
+        });
     }
-
 
     reload() {
         this.setState({
@@ -65,6 +65,13 @@ class PersonContainer extends React.Component {
         });
         this.toggleForm();
         this.fetchPersons();
+    }
+
+    onEdit(person) {
+        this.setState({
+            selected: true,
+            personToEdit: person
+        });
     }
 
     render() {
@@ -83,28 +90,38 @@ class PersonContainer extends React.Component {
                     <br/>
                     <Row>
                         <Col sm={{size: '8', offset: 1}}>
-                            {this.state.isLoaded && <PersonTable tableData = {this.state.tableData}/>}
-                            {this.state.errorStatus > 0 && <APIResponseErrorMessage
-                                                            errorStatus={this.state.errorStatus}
-                                                            error={this.state.error}
-                                                        />   }
+                            {this.state.isLoaded && (
+                                <PersonTable
+                                    tableData={this.state.tableData}
+                                    onEdit={this.onEdit}
+                                    reload={this.reload} // Pass reload function to the table
+                                />
+                            )}
+                            {this.state.errorStatus > 0 && (
+                                <APIResponseErrorMessage
+                                    errorStatus={this.state.errorStatus}
+                                    error={this.state.error}
+                                />
+                            )}
                         </Col>
                     </Row>
                 </Card>
-
-                <Modal isOpen={this.state.selected} toggle={this.toggleForm}
-                       className={this.props.className} size="lg">
-                    <ModalHeader toggle={this.toggleForm}> Add Person: </ModalHeader>
+    
+                <Modal isOpen={this.state.selected} toggle={this.toggleForm} size="lg">
+                    <ModalHeader toggle={this.toggleForm}>
+                        {this.state.personToEdit ? 'Edit Person' : 'Add Person'}
+                    </ModalHeader>
                     <ModalBody>
-                        <PersonForm reloadHandler={this.reload}/>
+                        <PersonForm
+                            reloadHandler={this.reload}
+                            person={this.state.personToEdit}
+                        />
                     </ModalBody>
                 </Modal>
-
             </div>
-        )
-
+        );
     }
+    
 }
-
 
 export default PersonContainer;

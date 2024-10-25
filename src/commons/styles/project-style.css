@@ -329,7 +329,7 @@
 }
 
 .edit-button {
-    background-color: #4CAF50;
+    background-color: #008cff;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -339,5 +339,5 @@
 }
 
 .edit-button:hover {
-    background-color: #45a049;
+    background-color: #2055a4;
 }
