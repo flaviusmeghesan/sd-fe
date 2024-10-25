@@ -1,4 +1,3 @@
-
 const minLengthValidator = (value, minLength) => {
     return value.length >= minLength;
 };
@@ -12,27 +11,30 @@ const emailValidator = value => {
     return re.test(String(value).toLowerCase());
 };
 
-const validate = (value, rules) => {
+function validate(value, rules) {
     let isValid = true;
 
-    for (let rule in rules) {
+    if (rules.isRequired) {
+        isValid = value.trim() !== '' && isValid;
+    }
 
-        switch (rule) {
-            case 'minLength': isValid = isValid && minLengthValidator(value, rules[rule]);
-                              break;
+    if (rules.minLength) {
+        isValid = value.length >= rules.minLength && isValid;
+    }
 
-            case 'isRequired': isValid = isValid && requiredValidator(value);
-                               break;
+    if (rules.hasUpperCase) {
+        isValid = /[A-Z]/.test(value) && isValid;
+    }
 
-            case 'emailValidator': isValid = isValid && emailValidator(value);
-                                   break;
+    if (rules.hasLowerCase) {
+        isValid = /[a-z]/.test(value) && isValid;
+    }
 
-            default: isValid = true;
-        }
-
+    if (rules.hasNumber) {
+        isValid = /\d/.test(value) && isValid;
     }
 
     return isValid;
-};
+}
 
 export default validate;
