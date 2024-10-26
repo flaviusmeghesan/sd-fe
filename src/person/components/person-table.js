@@ -32,6 +32,7 @@ const filters = [
         accessor: 'name',
     }
 ];
+
 class PersonTable extends React.Component {
     constructor(props) {
         super(props);
@@ -44,7 +45,7 @@ class PersonTable extends React.Component {
             if (status === 200) {
                 // Notify the parent to reload the table data after a successful deletion
                 window.location.reload();
-                this.props.reload();  // Trigger the reload in the parent
+                //this.props.reload();  // Trigger the reload in the parent
             } else {
                 console.error("Failed to delete person:", err);
             }

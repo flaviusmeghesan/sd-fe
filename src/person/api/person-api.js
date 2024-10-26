@@ -41,18 +41,30 @@ function postPerson(user, callback){
 }
 
 function deletePerson(personId, callback) {
-    let request = new Request(HOST.backend_api + endpoint.person + '/' + personId, {
+    return fetch(HOST.backend_api + endpoint.person + '/' + personId, {
         method: 'DELETE',
-    });
-
-    console.log("URL: " + request.url);
-
-    RestApiClient.performRequest(request, (response, status, error) => {
-        if (response && response.ok) {
-            callback(null, 200, null); // If successful, send a success response
-        } else if (error) {
-            callback(null, status, error);
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                return response.json(); // Parse JSON if the response is JSON
+            } else {
+                return response.text(); // Otherwise, handle as plain text
+            }
         }
+        throw new Error(`Failed to delete person with ID: ${personId}`);
+    })
+    .then(data => {
+        console.log("Delete response:", data);
+        callback(data, 200);
+    })
+    .catch(err => {
+        console.error("Error in deletePerson:", err);
+        callback(null, 500, err);
     });
 }
 
