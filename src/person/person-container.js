@@ -84,7 +84,7 @@ class PersonContainer extends React.Component {
                     <br/>
                     <Row>
                         <Col sm={{size: '8', offset: 1}}>
-                            <Button color="primary" onClick={this.toggleForm}>Add Person </Button>
+                            <Button color="primary" onClick={this.toggleForm}>Add User </Button>
                         </Col>
                     </Row>
                     <br/>
@@ -109,7 +109,7 @@ class PersonContainer extends React.Component {
     
                 <Modal isOpen={this.state.selected} toggle={this.toggleForm} size="lg">
                     <ModalHeader toggle={this.toggleForm}>
-                        {this.state.personToEdit ? 'Edit Person' : 'Add Person'}
+                        {this.state.personToEdit ? 'Edit Person' : 'Add User'}
                     </ModalHeader>
                     <ModalBody>
                         <PersonForm

@@ -19,7 +19,7 @@ class PersonForm extends React.Component {
             formControls: {
                 name: {
                     value: '',
-                    placeholder: 'What is your name?...',
+                    placeholder: 'Name...',
                     valid: false,
                     touched: false,
                     validationRules: {
