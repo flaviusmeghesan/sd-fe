@@ -6,6 +6,10 @@ import '../../commons/styles/project-style.css';
 const columns = (handleEdit, handleDelete, showActions) => {
     const baseColumns = [
         {
+            Header: 'Devices ID',
+            accessor: 'id',
+        },
+        {
             Header: 'Description',
             accessor: 'description',
         },
@@ -14,10 +18,7 @@ const columns = (handleEdit, handleDelete, showActions) => {
             accessor: 'address',
         },
         
-        {
-            Header: 'Assigned to users',
-            accessor: 'assignedUserId',
-        },
+        
         {
             Header: 'Max Hourly Consumption (kWh)',
             accessor: 'maxHourlyEnergyConsumption',

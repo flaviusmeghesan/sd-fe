@@ -58,12 +58,23 @@ function deletePerson(personId, callback) {
             throw new Error('Access Denied: You do not have permission to delete this person.');
         } else if (response.status === 401) {
             throw new Error('Unauthorized: You need to log in to perform this action.');
+        } else if (response.status === 404) {
+            throw new Error("Person not found: The person ID may be incorrect or does not exist.");
         } else {
             throw new Error(`Failed to delete person with ID: ${personId}`);
         }
     })
-    .catch(error => callback(null, 500, error)); // On error
+    .then(message => {
+        console.log("Delete response:", message);
+        callback({ message: message }, 200);
+    })
+    .catch(error => {
+        console.error("Error in deletePerson:", error);
+        alert(error.message); // Display the error message in an alert
+        callback(null, 500, error); // On error
+    });
 }
+
 
 function updatePerson(personId, person, callback) {
     const token = localStorage.getItem('token');

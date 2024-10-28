@@ -2,7 +2,8 @@ import { HOST1 } from '../../commons/hosts';
 import { performRequest } from '../../commons/api/rest-client'; // Import performRequest directly
 
 const endpoint = {
-    device: '/device'
+    device: '/device',
+    mapping: '/mappings'
 };
 
 function getDevices(callback) {
@@ -11,6 +12,38 @@ function getDevices(callback) {
     });
     console.log(request.url);
     performRequest(request, callback); // Use performRequest directly
+}
+
+function assignDeviceToUser(userId, deviceId, callback) {
+    const token = localStorage.getItem('token'); // Retrieve token from localStorage for authorization if required
+
+    // const url = `${HOST1.backend_api}/device/${userId}/${deviceId}`;
+    const request = new Request(HOST1.backend_api + endpoint.device + '/assign/' + userId + '/' + deviceId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : '' // Optional authorization header
+        }
+    });
+
+
+    fetch(request)
+        .then(response => {
+            if (response.ok) {
+                return response.text(); // Get the success message from response
+            } else if (response.status === 403) {
+                throw new Error("Access forbidden: Admin privileges required to assign devices.");
+            } else if (response.status === 404) {
+                throw new Error("User or device not found.");
+            } else {
+                throw new Error(`Failed to assign device with ID: ${deviceId} to user with ID: ${userId}`);
+            }
+        })
+        .then(message => callback({ message }, 200)) // Pass response as object with message key for consistency
+        .catch(error => {
+            console.error("Error in assignDeviceToUser:", error);
+            callback(null, error.status || 500, error);
+        });
 }
 
 function getDeviceById(params, callback) {
@@ -43,6 +76,29 @@ function getAssignedDevices2(callback = () => {}) { // Default to a no-op functi
     })
     .then(data => callback(data, 200, null))
     .catch(error => callback(null, error.status || 500, error));
+}
+
+function getAssignedDevices3(user_id, callback = () => {}) { // Add user_id as parameter
+    const token = localStorage.getItem('token'); // Retrieve token from localStorage
+    fetch(`${HOST1.backend_api}/device/${user_id}`, { // Update URL to include user_id
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : '' // Add Authorization header with Bearer token
+        }
+    })
+    .then(response => {
+        if (response.status === 200) {
+            return response.json();
+        } else if (response.status === 403) {
+            throw new Error("Access forbidden");
+        } else {
+            throw new Error("Failed to fetch assigned devices");
+        }
+    })
+    .then(data => callback(data, 200, null)) // Pass the data to the callback
+    .catch(error => callback(null, error.status || 500, error)); // Pass error to callback
 }
 
 
@@ -130,5 +186,7 @@ export {
     deleteDevice,
     updateDevice,
     getAssignedDevices,
-    getAssignedDevices2
+    getAssignedDevices2,
+    getAssignedDevices3,
+    assignDeviceToUser 
 };

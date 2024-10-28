@@ -3,7 +3,7 @@ import Table from "../../commons/tables/table";
 import * as API_USERS from "../api/person-api";
 import '../../commons/styles/project-style.css';
 
-const columns = (handleEdit, handleDelete) => [
+const columns = (handleEdit, handleDelete, handleAssign) => [
     {
         Header: 'Name',
         accessor: 'name', // Ensure this matches backend's PersonDTO field
@@ -17,15 +17,12 @@ const columns = (handleEdit, handleDelete) => [
         accessor: 'username',
     },
     {
-        Header: 'Assigned Devices',
-        accessor: 'assigned_device_id',
-    },
-    {
         Header: 'Actions',
         Cell: ({ row }) => (
             <div>
                 <button className="edit-button" onClick={() => handleEdit(row._original.id)}>Edit</button>
                 <button className="delete-button" onClick={() => handleDelete(row._original.id)}>Delete</button>
+                <button className="assign-button" onClick={() => handleAssign(row._original.id)}>Assign</button>
             </div>
         )
     }
@@ -43,12 +40,21 @@ class PersonTable extends React.Component {
         super(props);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
+        this.handleAssign = this.handleAssign.bind(this);
     }
 
     handleEdit(personId) {
         const selectedPerson = this.props.tableData.find(person => person.id === personId);
         if (this.props.onEdit) {
             this.props.onEdit(selectedPerson);
+        }
+    }
+
+    handleAssign(personId) {
+        // Replicate the functionality of handleEdit without calling it directly
+        const selectedPerson = this.props.tableData.find(person => person.id === personId);
+        if (this.props.onAssign) {
+            this.props.onAssign(selectedPerson);
         }
     }
 
@@ -66,7 +72,7 @@ class PersonTable extends React.Component {
         return (
             <Table
                 data={this.props.tableData}
-                columns={columns(this.handleEdit, this.handleDelete)}
+                columns={columns(this.handleEdit, this.handleDelete, this.handleAssign)}
                 search={filters} // Apply name filter here
                 pageSize={5}
             />

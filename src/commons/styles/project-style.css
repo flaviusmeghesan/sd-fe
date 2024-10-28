@@ -341,3 +341,18 @@
 .edit-button:hover {
     background-color: #2055a4;
 }
+
+.assign-button {
+    background-color: #62a318;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.assign-button:hover {
+    background-color: #007a10;
+}

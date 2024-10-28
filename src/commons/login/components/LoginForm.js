@@ -13,9 +13,7 @@ const LoginForm = ({ onLogin }) => {
     const handleSubmit = async (e) => {
     e.preventDefault();
     API_USERS.login(username, password, (result, status) => {
-        console.log("Login result:", jwtDecode(result.token)); // Debugging to confirm login data
-        console.log("Login status:", status);  // Debugging to confirm status
-
+        console.log(result)
         if (status === 200 && jwtDecode(result.token)) { // Check if user data is present
             onLogin(jwtDecode(result.token)); // Pass user details to App
         } else {

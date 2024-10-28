@@ -28,28 +28,54 @@ class ClientDashboard extends Component {
     }
     
 
-    fetchAssignedDevices = () => {
-        API_DEVICES.getAssignedDevices2((data, status, error) => {
-            if (status === 200) {
-                // Handle successful data fetching
-                console.log("Devices:", data);
-                this.setState({
-                    deviceTableData: data,
-                    isLoadedDevices: true,
-                    errorStatus: 0,
-                    error: null
-                });
-            } else {
-                console.error("Error fetching devices:", error);
-                console.error("Error fetching devices:", error);
+//    fetchAssignedDevices = () => {
+//     const user_id = this.props.user_id; // Retrieve user_id from props (or state/context)
+
+//     API_DEVICES.getAssignedDevices2(user_id, (data, status, error) => { // Pass user_id to the function
+//         if (status === 200) {
+//             // Handle successful data fetching
+//             console.log("Devices:", data);
+//             this.setState({
+//                 deviceTableData: data,
+//                 isLoadedDevices: true,
+//                 errorStatus: 0,
+//                 error: null
+//             });
+//         } else {
+//             console.error("Error fetching devices:", error);
+//             this.setState({
+//                 isLoadedDevices: true,
+//                 errorStatus: status,
+//                 error: error
+//             });
+//         }
+//     });
+// };
+
+fetchAssignedDevices = () => {
+    const user_id = this.props.userId; // Retrieve user_id from props (or state/context)
+
+    API_DEVICES.getAssignedDevices3(user_id, (data, status, error) => { // Pass user_id to the function
+        if (status === 200) {
+            // Handle successful data fetching
+            console.log("Devices:", data);
+            this.setState({
+                deviceTableData: data,
+                isLoadedDevices: true,
+                errorStatus: 0,
+                error: null
+            });
+        } else {
+            console.error("Error fetching devices:", error);
             this.setState({
                 isLoadedDevices: true,
                 errorStatus: status,
                 error: error
             });
-            }
-        });
-    };
+        }
+    });
+};
+
 
     render() {
         return (

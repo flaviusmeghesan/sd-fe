@@ -1,6 +1,6 @@
 import React from 'react';
 
-import BackgroundImg from '../commons/images/future-medicine.jpg';
+import BackgroundImg from '../commons/images/icon.png';
 
 import {Button, Container, Jumbotron} from 'reactstrap';
 

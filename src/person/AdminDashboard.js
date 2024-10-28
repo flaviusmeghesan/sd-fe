@@ -3,6 +3,7 @@ import { Button, Card, CardHeader, Col, Modal, ModalBody, ModalHeader, Row } fro
 import APIResponseErrorMessage from "../commons/errorhandling/api-response-error-message";
 import PersonForm from "./components/person-form";
 import DeviceForm from "./components/device-form";
+import MapDeviceForm from "./components/MapDeviceForm";
 import * as API_USERS from "./api/person-api";
 import * as API_DEVICES from "./api/device-api";
 import PersonTable from "./components/person-table";
@@ -13,18 +14,18 @@ class AdminDashboard extends React.Component {
         super(props);
         this.togglePersonForm = this.togglePersonForm.bind(this);
         this.toggleDeviceForm = this.toggleDeviceForm.bind(this);
+        this.toggleMappingForm = this.toggleMappingForm.bind(this);
         this.reloadPersons = this.reloadPersons.bind(this);
         this.reloadDevices = this.reloadDevices.bind(this);
-        this.fetchPersons = this.fetchPersons.bind(this);
-        this.fetchDevices = this.fetchDevices.bind(this);
-        
-        // Bind both edit methods here
+
         this.onEditPerson = this.onEditPerson.bind(this);
         this.onEditDevice = this.onEditDevice.bind(this);
+        this.onAssignDevice = this.onAssignDevice.bind(this);
 
         this.state = {
             showPersonForm: false,
             showDeviceForm: false,
+            showMappingForm: false,
             isAuthenticated: false,
             tableDataPersons: [],
             tableDataDevices: [],
@@ -34,6 +35,7 @@ class AdminDashboard extends React.Component {
             error: null,
             personToEdit: null,
             deviceToEdit: null,
+            personToAssign: null,
         };
     }
 
@@ -105,6 +107,13 @@ class AdminDashboard extends React.Component {
         }
     }
 
+    toggleMappingForm() {
+        this.setState(prevState => ({
+            showMappingForm: !prevState.showMappingForm,
+            personToAssign: null,
+        }));
+    }
+
     toggleDeviceForm() {
         this.setState(prevState => ({
             showDeviceForm: !prevState.showDeviceForm,
@@ -132,6 +141,13 @@ class AdminDashboard extends React.Component {
         });
     }
 
+    onAssignDevice(person) {
+        this.setState({
+            showMappingForm: true,
+            personToAssign: person,
+        });
+    }
+
     onEditDevice(device) {
         this.setState({
             showDeviceForm: true,
@@ -146,19 +162,20 @@ class AdminDashboard extends React.Component {
                     <strong>Person and Device Management</strong>
                 </CardHeader>
                 <Card>
-                    <br /> {/* Space above person button */}
+                    <br />
                     <Row>
                         <Col sm={{size: '8', offset: 1}}>
                             <Button color="primary" onClick={this.togglePersonForm}>Add Person</Button>
                         </Col>
                     </Row>
-                    <br /> {/* Space between button and table */}
+                    <br />
                     <Row>
                         <Col sm={{ size: '8', offset: 1 }}>
                             {this.state.isLoadedPersons && (
                                 <PersonTable
                                     tableData={this.state.tableDataPersons}
                                     onEdit={this.onEditPerson}
+                                    onAssign={this.onAssignDevice}
                                     refreshTableData={this.reloadPersons}
                                 />
                             )}
@@ -170,13 +187,13 @@ class AdminDashboard extends React.Component {
                             )}
                         </Col>
                     </Row>
-                    <br /> {/* Space between person and device sections */}
+                    <br />
                     <Row>
                         <Col sm={{size: '8', offset: 1}}>
                             <Button color="primary" onClick={this.toggleDeviceForm}>Add Device</Button>
                         </Col>
                     </Row>
-                    <br /> {/* Space between button and table */}
+                    <br />
                     <Row>
                         <Col sm={{size: '8', offset: 1}}>
                             {this.state.isLoadedDevices && (
@@ -195,11 +212,6 @@ class AdminDashboard extends React.Component {
                             )}
                         </Col>
                     </Row>
-                    <Col>
-                    <Col sm={{size: '8', offset: 1}}>
-                            <Button color="secondary" onClick={this.toggleDeviceForm}>Map device to user</Button>
-                        </Col>
-                    </Col>
                 </Card>
 
                 {/* Person Form Modal */}
@@ -226,6 +238,24 @@ class AdminDashboard extends React.Component {
                             reloadHandler={this.reloadDevices}
                             device={this.state.deviceToEdit}
                             toggle={this.toggleDeviceForm}
+                        />
+                    </ModalBody>
+                </Modal>
+
+                {/* Map Device to User Modal */}
+                <Modal isOpen={this.state.showMappingForm} toggle={this.toggleMappingForm} size="lg">
+                    <ModalHeader toggle={this.toggleMappingForm}>
+                        Assign Device to {this.state.personToAssign ? this.state.personToAssign.name : 'User'}
+                    </ModalHeader>
+                    <ModalBody>
+                        <MapDeviceForm
+                            person={this.state.personToAssign}
+                            onSubmit={(mappingData) => {
+                                // Implement the function to handle submission of mapping here
+                                console.log("Mapping data submitted:", mappingData);
+                                // Optionally, call reloadDevices or any other refresh function
+                            }}
+                            toggle={this.toggleMappingForm}
                         />
                     </ModalBody>
                 </Modal>
